@@ -1,70 +1,30 @@
-name: Java CI with Gradle & Deploy to EC2
-
-
+name: my-front
 on:
   push:
-    branches: [ "main" ]
-   
-
-env:
-  AWS_REGION: AWS 지역
-  S3_BUCKET_NAME: AWS S3 버킷 이름
-  CODE_DEPLOY_APPLICATION_NAME: AWS CodeDeploy App 이름
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: AWS CodeDeploy 배포 그룹 명
-
-
-permissions:
-  contents: read
-
+    branches:
+      - main
 jobs:
-  deploy:
-    name: Deploy
+  build:
     runs-on: ubuntu-latest
-
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: 'ap-northeast-2'
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    
- 
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
-        
- 
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      working-directory: ${{ env.working-directory }}
-        
-  
-    - name: Build with Gradle
-      run: ./gradlew clean build
-      working-directory: ${{ env.working-directory }}
-      
-  
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-        
-  
-    - name: Upload to AWS S3
-      run: |
-        aws deploy push \
-          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
-          --ignore-hidden-files \
-          --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
-          --source .
-          
-  
-    - name: Deploy to AWS EC2 from S3
-      run: |
-        aws deploy create-deployment \
-          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
-          --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+      - name: Checkout source code.
+        uses: actions/checkout@master
+
+      - name: Upload binary to S3 bucket
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --exclude '*' --include 'index.html'
+        env:
+          AWS_S3_BUCKET: ${{ secrets.BUCKET_NAME }}
+
+      - name: Invalidate cache CloudFront
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{ secrets.DISTRIBUTION_ID }}
+          PATHS: '/index.html'
+        continue-on-error: true
