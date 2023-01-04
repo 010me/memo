@@ -15,6 +15,12 @@ public class MemoController {
 
     private final MemoService memoService;
 
+
+    @GetMapping("/prac")
+    public String prac() {
+        return "Hello, world";
+    }
+
     @GetMapping("/")
     public ModelAndView home() {
         return new ModelAndView("index");
