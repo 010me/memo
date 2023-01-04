@@ -9,6 +9,13 @@ JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
 CURRENT_PID=$(pgrep -f$APP_NAME)
 
+# shellcheck disable=SC1073
+# shellcheck disable=SC1035
+# shellcheck disable=SC1020
+# shellcheck disable=SC1072
+# shellcheck disable=SC1019
+# shellcheck disable=SC1069
+# shellcheck disable=SC1009
 if[-z$CURRENT_PID]
 then
 echo"> 종료할것 없음."
