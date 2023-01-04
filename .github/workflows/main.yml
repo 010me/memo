@@ -3,7 +3,7 @@ name:Build and Deploy Spring Boot to AWS EC2
 
 on:
 push:
-branches:[ main ]
+branches:[ master ]
 
 env:
 PROJECT_NAME:cicd_project
@@ -13,7 +13,7 @@ DEPLOYMENT_GROUP_NAME:cicdapp_deploy
 
 jobs:
 build:
-runs-on:ubuntu-18.04
+runs-on:ubuntu-20.04
 steps:
 -name:Checkout
 uses:actions/checkout@v2
