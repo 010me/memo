@@ -18,7 +18,7 @@ public class MemoController {
 
     @GetMapping("/prac")
     public String prac() {
-        return "Hello, world";
+        return "Hello, world cicd test 동작확인";
     }
 
     @GetMapping("/")
