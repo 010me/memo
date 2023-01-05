@@ -35,6 +35,10 @@ jobs:
         java-version: '11'
 
     # (3) Gradle build (Test 제외)
+
+    - name: Run chmod to make gradlew executable
+      run: chmod +x ./gradlew
+      
     - name: Build with Gradle
       uses: gradle/gradle-build-action@0d13054264b0bb894ded474f08ebb30921341cee
       with:
