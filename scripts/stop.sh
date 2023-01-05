@@ -1,29 +1,19 @@
 #!/usr/bin/env bash
 
-REPOSITORY=/home/ec2-user/cicdproject
-cd$REPOSITORY
+PROJECT_ROOT="/home/ubuntu/app"
+JAR_FILE="$PROJECT_ROOT/spring-webapp.jar"
 
-APP_NAME=cicdproject
-JAR_NAME=$(ls$REPOSITORY/build/libs/|grep'SNAPSHOT.jar'|tail -n 1)
-JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
 
-CURRENT_PID=$(pgrep -f$APP_NAME)
+TIME_NOW=$(date +%c)
 
-# shellcheck disable=SC1073
-# shellcheck disable=SC1035
-# shellcheck disable=SC1020
-# shellcheck disable=SC1072
-# shellcheck disable=SC1019
-# shellcheck disable=SC1069
-# shellcheck disable=SC1009
-if[-z$CURRENT_PID]
-then
-echo"> 종료할것 없음."
+# 현재 구동 중인 애플리케이션 pid 확인
+CURRENT_PID=$(pgrep -f $JAR_FILE)
+
+# 프로세스가 켜져 있으면 종료
+if [ -z $CURRENT_PID ]; then
+  echo "$TIME_NOW > 현재 실행중인 애플리케이션이 없습니다" >> $DEPLOY_LOG
 else
-echo"> kill -9$CURRENT_PID"
-kill-15$CURRENT_PID
-sleep 5
+  echo "$TIME_NOW > 실행중인 $CURRENT_PID 애플리케이션 종료 " >> $DEPLOY_LOG
+  kill -15 $CURRENT_PID
 fi
-
-echo">$JAR_PATH배포"
-nohup java -jar$JAR_PATH>/dev/null2>/dev/null</dev/null&
